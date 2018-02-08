@@ -67,7 +67,7 @@ def main():
     
     
     # MQTT Setup
-    with open('mqtt.config') as json_file:  
+    with open('Configs\mqtt.config') as json_file:  
         mqtt_config = json.load(json_file)
 
     mqtt_broker_address=mqtt_config["mqtt_broker_address"]
