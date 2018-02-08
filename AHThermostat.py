@@ -1,5 +1,6 @@
 import time
 import os
+import json
 import paho.mqtt.client as mqtt
 import paho.mqtt.subscribe as subscribe
 # import Adafruit_DHT
@@ -60,3 +61,25 @@ def get_th_sensor(sensor_file, use_fahrenheit):
 
     return humidity, temp
 
+
+
+def main():
+    
+    
+    # MQTT Setup
+    with open('mqtt.config') as json_file:  
+        mqtt_config = json.load(json_file)
+
+    mqtt_broker_address=mqtt_config["mqtt_broker_address"]
+    mqtt_client_id=mqtt_config["mqtt_client_id"]
+
+    mqtt_current_temperature_topic=mqtt_config["current_temperature_topic"]
+    mqtt_mode_state_topic=mqtt_config["mode_state_topic"]
+    mqtt_temperature_state_topic=mqtt_config["temperature_state_topic"]
+
+    client = mqtt.Client(mqtt_client_id)
+    client.connect(mqtt_broker_address)
+
+
+if __name__ == '__main__':
+    main()
