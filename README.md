@@ -4,7 +4,8 @@ Smart Thermostat written in python for Raspberry Pi
 I wanted to create a project so that I could learn the python programming language and have something useful when I am done.  With that being said, this is NOT well written code (there are probably better ways to do what I am doing) but I am using it to learn.
 
 # Hardware Used
-* Raspberry Pi Zero W
+* Raspberry Pi Zero W (Bought on Amazon $11.00 + shipping)
+* Makerfire Nextion HMI 3.2" TFT LCD Module Display Touch Panel (Bought on Amazon $34.99)
 * DHT22/AM2302 Digital Temperature And Humidity Sensor Module (Bought on Ebay $3.23)
 * DC-DC Buck Converter Step down 5-24V to 1.5V 3.3V 5V 9V 12V 2A Adjustable Module (Bought on Ebay $0.99)
 * 4 Channel 5V Relay Shield Module Board for Arduino Raspberry Pi (Bought on Ebay $2.98)
