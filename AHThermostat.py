@@ -61,6 +61,19 @@ def get_th_sensor(sensor_file, use_fahrenheit):
 
     return humidity, temp
 
+def check_heat_cool_mode():
+    """Read the heating and cooling mode from the file and return the mode"""
+    lines = open('HeatCoolMode.txt', 'r').readlines()
+    mode = lines[0].rstrip()
+
+    return mode
+
+def check_temp_set():
+    """Read the set temperature from the file and return the set temperature"""
+    lines = open('SetTemp.txt', 'r').readlines()
+    set_temp = lines[0].rstrip()
+
+    return set_temp
 
 
 def main():
@@ -108,12 +121,9 @@ def main():
 
     #Create an infinite loop
     while True:
-        # heat_cool_mode = check_heat_cool_mode()  <--REMOVED TO TEST MQTT
-        mqtt_msg = subscribe.simple(mqtt_mode_state_topic, hostname=mqtt_broker_address)
-        heat_cool_mode = mqtt_msg.payload.decode()
-
-        mqtt_msg = subscribe.simple(mqtt_temperature_state_topic, hostname=mqtt_broker_address)
-        hold_temp = float(mqtt_msg.payload.decode())
+        heat_cool_mode = check_heat_cool_mode()
+        
+        hold_temp = check_temp_set()
 
         # Get Indoor Sensor Info
         humidity_indoor_sensor, temp_indoor_sensor = get_th_sensor('FakeIndoorSensor.txt',
