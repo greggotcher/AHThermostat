@@ -66,7 +66,7 @@ def get_th_sensor(sensor_file, use_fahrenheit):
 def main():
     # Thermostat Setup
     # Read thermostat.config file
-    with open('Configs\mqtt.config') as json_file:  
+    with open('Configs\thermostat.config') as json_file:  
         thermostat_config = json.load(json_file)
 
     hold_temp = thermostat_config["default_hold_temp"]
@@ -80,7 +80,7 @@ def main():
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID
-    mqtt_broker_addres = mqtt_config["mqtt_broker_address"]
+    mqtt_broker_address = mqtt_config["mqtt_broker_address"]
     mqtt_client_id = mqtt_config["mqtt_client_id"]
 
     # Assing MQTT Topics
