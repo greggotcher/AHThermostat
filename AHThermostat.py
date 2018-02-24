@@ -4,6 +4,7 @@ import json
 import paho.mqtt.client as mqtt
 # import paho.mqtt.subscribe as subscribe
 import Adafruit_DHT as dht
+import RPi.GPIO as GPIO
 
 
 # Constants
@@ -158,6 +159,16 @@ def main():
     heat_running = False
     cool_running = False
 
+    # Set up GPIO using BCM numbering
+    GPIO.setmode(GPIO.BCM)
+
+    heat_pin = 17  # Pin 11 on Pi Zero W
+    GPIO.setup(heat_pin, GPIO.OUT)
+    cool_pin = 27  # Pin 13 on Pi Zero W
+    GPIO.setup(cool_pin, GPIO.OUT)
+    fan_pin = 22  # Pin 15 on Pi Zero W
+    GPIO.setup(fan_pin, GPIO.OUT)
+
     # Create an infinite loop
     while True:
         heat_cool_mode = check_heat_cool_mode()
@@ -174,6 +185,7 @@ def main():
         if heat_cool_mode == 'HEAT':
             # Make sure cooling is OFF
             cool_running = False
+            GPIO.output(cool_pin, False)
 
             os.system('clear')
             print('Mode: HEAT')
@@ -181,7 +193,9 @@ def main():
             # If heat is not running and it is less than the hold_temp - hold_within Turn on Heat
             if not heat_running and temp_indoor_sensor < (hold_temp - hold_within):
                 heat_running = True
+                GPIO.output(heat_pin, True)
                 fan_on = True
+                GPIO.output(fan_pin, True)
 
                 print_thermostat(fan_auto, use_fahrenheit, hold_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
@@ -194,7 +208,10 @@ def main():
             # Turn off Heat
             else:
                 heat_running = False
+                GPIO.output(heat_pin, False)
                 fan_on = fan_mode(fan_auto)
+                if not fan_on:
+                    GPIO.output(fan_pin, False)
 
                 print_thermostat(fan_auto, use_fahrenheit, hold_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
@@ -204,6 +221,7 @@ def main():
         elif heat_cool_mode == 'COOL':
             # Make sure heating is OFF
             heat_running = False
+            GPIO.output(heat_pin, False)
 
             os.system('clear')
             print('Mode: COOL')
@@ -211,7 +229,9 @@ def main():
             # If cool is not running and it is greater than the hold_temp + hold_within Turn on Cool
             if not cool_running and temp_indoor_sensor > (hold_temp + hold_within):
                 cool_running = True
+                GPIO.output(cool_pin, True)
                 fan_on = True
+                GPIO.output(fan_pin, True)
 
                 print_thermostat(fan_auto, use_fahrenheit, hold_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
@@ -224,7 +244,10 @@ def main():
             # Turn off Cool
             else:
                 cool_running = False
+                GPIO.output(cool_pin, False)
                 fan_on = fan_mode(fan_auto)
+                if not fan_on:
+                    GPIO.output(fan_pin, False)
 
                 print_thermostat(fan_auto, use_fahrenheit, hold_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
@@ -234,15 +257,21 @@ def main():
         else:
             # Make sure heating and cooling are OFF
             heat_running = False
+            GPIO.output(heat_pin, False)
             cool_running = False
+            GPIO.output(cool_pin, False)
 
             os.system('clear')
             print('Mode: OFF')
 
             fan_on = fan_mode(fan_auto)
+            if fan_on:
+                GPIO.output(fan_pin, True)
+            else:
+                GPIO.output(fan_pin, False)
 
             print_thermostat(fan_auto, use_fahrenheit, hold_temp,
-                                 temp_indoor_sensor, humidity_indoor_sensor)
+                             temp_indoor_sensor, humidity_indoor_sensor)
             show_pins(heat_running, cool_running, fan_on)
 
         time.sleep(15)
