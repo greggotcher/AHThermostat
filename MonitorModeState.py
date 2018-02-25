@@ -1,3 +1,9 @@
+import json
+import paho.mqtt.client as mqtt
+import time
+# import paho.mqtt.subscribe as subscribe
+
+
 def on_connect(client, userdata, flags, rc):
 
     if rc == 0:
@@ -17,11 +23,6 @@ def on_message(client, userdata, message):
 
 
 def main():
-
-    import json
-    import paho.mqtt.client as mqtt
-    import time
-    # import paho.mqtt.subscribe as subscribe
 
     # Read mqtt.config file
     with open('Configs\mqtt.config') as json_file:
