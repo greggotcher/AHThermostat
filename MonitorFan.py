@@ -1,7 +1,6 @@
 import json
 import paho.mqtt.client as mqtt
 import time
-# import paho.mqtt.subscribe as subscribe
 
 
 Connected = False
@@ -53,7 +52,6 @@ def main():
 
     client.on_message = on_message
 
-    # heat_cool_mode = check_heat_cool_mode()  <--REMOVED TO TEST MQTT
     client.loop_start()
 
     client.subscribe(mqtt_fan_state_topic)

@@ -1,7 +1,6 @@
 import json
 import paho.mqtt.client as mqtt
 import time
-# import paho.mqtt.subscribe as subscribe
 
 
 Connected = False
@@ -36,7 +35,6 @@ def on_message(client, userdata, message):
 
 
 def main():
-
     # Read mqtt_config.json file
     with open('Configs\mqtt_config.json') as json_file:
         mqtt_config = json.load(json_file)
@@ -54,7 +52,6 @@ def main():
 
     client.on_message = on_message
 
-    # heat_cool_mode = check_heat_cool_mode()  <--REMOVED TO TEST MQTT
     client.loop_start()
 
     client.subscribe(mqtt_mode_state_topic)
