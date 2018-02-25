@@ -64,7 +64,26 @@ def get_th_sensor(use_fahrenheit):
     return humidity, temp
 
 
-def print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+def check_states():
+    """Read the states and return the set_temp, hvac_mode and fan_mode"""
+    with open('States.json') as json_file:
+        states = json.load(json_file)
+
+    set_temp = states["set_temp"]
+    hvac_mode = states["hvac_mode"]
+    fan_mode = states["fan_mode"]
+
+    return set_temp, hvac_mode, fan_mode
+
+
+def show_pins(heat_running, cool_running, fan_on):
+    """Show what the pins are doing"""
+    print('Heat running: ' + str(heat_running))
+    print('Cool running: ' + str(cool_running))
+    print('Fan is on: ' + str(fan_on))
+
+
+def print_thermostat(fan_auto, use_fahrenheit, set_temp,
                      temp_indoor_sensor, humidity_indoor_sensor):
     """Output the thermostat information to the screen"""
     if fan_auto:
@@ -80,58 +99,27 @@ def print_thermostat(fan_auto, use_fahrenheit, hold_temp,
     print('Current Humidity: ' + str(humidity_indoor_sensor) + '%\n')
 
     if use_fahrenheit:
-        if hold_temp is not '':
-            print('Hold Temperature: ' + str(hold_temp) + DEG + 'F\n')
+        if set_temp is not '':
+            print('Hold Temperature: ' + str(set_temp) + DEG + 'F\n')
         else:
             print('Hold Temperature: \n')
     else:
-        print('Hold Temperature: ' + str(hold_temp) + DEG + 'C\n')
-
-
-def fan_mode(fan_auto):
-    """If the Fan is not in Auto Mode then the Fan is On"""
-    if not fan_auto:
-        return True
-    else:
-        return False
-
-
-def show_pins(heat_running, cool_running, fan_on):
-    """Show what the pins are doing"""
-    print('Heat running: ' + str(heat_running))
-    print('Cool running: ' + str(cool_running))
-    print('Fan is on: ' + str(fan_on))
-
-
-def check_heat_cool_mode():
-    """Read the heating and cooling mode from the file and return the mode"""
-    lines = open('HeatCoolMode.txt', 'r').readlines()
-    mode = lines[0].rstrip()
-
-    return mode
-
-
-def check_temp_set():
-    """Read the set temperature from the file and return the set temperature"""
-    lines = open('SetTemp.txt', 'r').readlines()
-    set_temp = lines[0].rstrip()
-
-    return set_temp
+        print('Hold Temperature: ' + str(set_temp) + DEG + 'C\n')
 
 
 def main():
     # Thermostat Setup
-    # Read thermostat.config file
-    with open('Configs\thermostat.config') as json_file:
+    # Read thermostat_config.json file
+    with open('Configs\thermostat_config.json') as json_file:
         thermostat_config = json.load(json_file)
 
-    hold_temp = thermostat_config["default_hold_temp"]
+    set_temp = thermostat_config["default_set_temp"]
     hold_within = thermostat_config["hold_within"]
     use_fahrenheit = thermostat_config["use_fahrenheit"]
 
     # MQTT Setup
-    # Read mqtt.config file
-    with open('Configs\mqtt.config') as json_file:
+    # Read mqtt_config.json file
+    with open('Configs\mqtt_config.json') as json_file:
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID
@@ -146,12 +134,12 @@ def main():
     client = mqtt.Client(mqtt_client_id)
     client.connect(mqtt_broker_address)
 
-    # Heating and Cooling Mode
+    # HVAC Mode
     # ---------------------------------------------
     # HEAT = heating is ON
     # COOL = cooling is ON
     # Anything else = heating and cooling are OFF
-    heat_cool_mode = 'OFF'
+    hvac_mode = 'OFF'
 
     fan_auto = True
     fan_on = False
@@ -171,9 +159,7 @@ def main():
 
     # Create an infinite loop
     while True:
-        heat_cool_mode = check_heat_cool_mode()
-
-        hold_temp = check_temp_set()
+        set_temp, hvac_mode, fan_mode = check_states()
 
         # Get Indoor Sensor Info
         humidity_indoor_sensor, temp_indoor_sensor = get_th_sensor(use_fahrenheit)
@@ -182,7 +168,7 @@ def main():
         client.publish(mqtt_current_temperature_topic, temp_indoor_sensor)
 
         # HEATING Mode
-        if heat_cool_mode == 'HEAT':
+        if hvac_mode == 'HEAT':
             # Make sure cooling is OFF
             cool_running = False
             GPIO.output(cool_pin, False)
@@ -190,35 +176,36 @@ def main():
             os.system('clear')
             print('Mode: HEAT')
 
-            # If heat is not running and it is less than the hold_temp - hold_within Turn on Heat
-            if not heat_running and temp_indoor_sensor < (hold_temp - hold_within):
+            # If heat is not running and it is less than the set_temp - hold_within Turn on Heat
+            if not heat_running and temp_indoor_sensor < (set_temp - hold_within):
                 heat_running = True
                 GPIO.output(heat_pin, True)
                 fan_on = True
                 GPIO.output(fan_pin, True)
 
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
-            # If heat is running and it is less than the hold_temp + the hold_within Continue
-            elif heat_running and temp_indoor_sensor < (hold_temp + hold_within):
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+            # If heat is running and it is less than the set_temp + the hold_within Continue
+            elif heat_running and temp_indoor_sensor < (set_temp + hold_within):
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
             # Turn off Heat
             else:
                 heat_running = False
                 GPIO.output(heat_pin, False)
-                fan_on = fan_mode(fan_auto)
-                if not fan_on:
+
+                if fan_mode == 'AUTO':
+                    fan_on = False
                     GPIO.output(fan_pin, False)
 
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
 
         # COOLING Mode
-        elif heat_cool_mode == 'COOL':
+        elif hvac_mode == 'COOL':
             # Make sure heating is OFF
             heat_running = False
             GPIO.output(heat_pin, False)
@@ -226,30 +213,31 @@ def main():
             os.system('clear')
             print('Mode: COOL')
 
-            # If cool is not running and it is greater than the hold_temp + hold_within Turn on Cool
-            if not cool_running and temp_indoor_sensor > (hold_temp + hold_within):
+            # If cool is not running and it is greater than the set_temp + hold_within Turn on Cool
+            if not cool_running and temp_indoor_sensor > (set_temp + hold_within):
                 cool_running = True
                 GPIO.output(cool_pin, True)
                 fan_on = True
                 GPIO.output(fan_pin, True)
 
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
-            # If cool is running and it is greater than the hold_temp - the hold_within Continue
-            elif cool_running and temp_indoor_sensor > (hold_temp - hold_within):
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+            # If cool is running and it is greater than the set_temp - the hold_within Continue
+            elif cool_running and temp_indoor_sensor > (set_temp - hold_within):
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
             # Turn off Cool
             else:
                 cool_running = False
                 GPIO.output(cool_pin, False)
-                fan_on = fan_mode(fan_auto)
-                if not fan_on:
+
+                if fan_mode == 'AUTO':
+                    fan_on = False
                     GPIO.output(fan_pin, False)
 
-                print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+                print_thermostat(fan_auto, use_fahrenheit, set_temp,
                                  temp_indoor_sensor, humidity_indoor_sensor)
                 show_pins(heat_running, cool_running, fan_on)
 
@@ -264,13 +252,14 @@ def main():
             os.system('clear')
             print('Mode: OFF')
 
-            fan_on = fan_mode(fan_auto)
-            if fan_on:
+            if fan_mode == 'ON':
+                fan_on = True
                 GPIO.output(fan_pin, True)
-            else:
+            elif fan_mode == 'AUTO':
+                fan_on = False
                 GPIO.output(fan_pin, False)
 
-            print_thermostat(fan_auto, use_fahrenheit, hold_temp,
+            print_thermostat(fan_auto, use_fahrenheit, set_temp,
                              temp_indoor_sensor, humidity_indoor_sensor)
             show_pins(heat_running, cool_running, fan_on)
 

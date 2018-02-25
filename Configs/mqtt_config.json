@@ -2,6 +2,6 @@
     "current_temperature_topic": "kitchen/thermostat/current_temp",
     "mode_state_topic": "kitchen/thermostat/hvac_mode",
     "temperature_state_topic": "kitchen/thermostat/target_temp",
-    "mqtt_broker_address": "192.168.1.200",
-    "mqtt_client_id": "Office"
+    "fan_state_topic": "kitchen/thermostat/fan_mode",
+    "mqtt_broker_address": "192.168.1.200"
 }

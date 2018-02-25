@@ -27,26 +27,25 @@ def on_message(client, userdata, message):
     with open('States.json', 'r') as json_file:
         states = json.load(json_file)
 
-    states["hvac_mode"] = message
+    states["fan_mode"] = message
 
     with open('States.json', 'w') as json_file:
         json.dump(states, json_file)
 
-    print("Heat Cool Mode: " + message)
+    print("Fan Mode: " + message)
 
 
 def main():
-
     # Read mqtt_config.json file
     with open('Configs\mqtt_config.json') as json_file:
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID
     mqtt_broker_address = mqtt_config["mqtt_broker_address"]
-    mqtt_client_id = 'GetModeState'
+    mqtt_client_id = 'GetFanModeState'
 
     # Assing MQTT Topics
-    mqtt_mode_state_topic = mqtt_config["mode_state_topic"]
+    mqtt_fan_state_topic = mqtt_config["fan_state_topic"]
 
     client = mqtt.Client(mqtt_client_id)
     client.connect(mqtt_broker_address)
@@ -57,7 +56,7 @@ def main():
     # heat_cool_mode = check_heat_cool_mode()  <--REMOVED TO TEST MQTT
     client.loop_start()
 
-    client.subscribe(mqtt_mode_state_topic)
+    client.subscribe(mqtt_fan_state_topic)
 
     try:
         while True:

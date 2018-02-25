@@ -1,0 +1,5 @@
+{
+    "default_set_temp": "65.0",
+    "hold_within": "0.5",
+    "use_fahrenheit": "True"
+}

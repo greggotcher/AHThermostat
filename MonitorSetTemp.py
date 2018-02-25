@@ -4,6 +4,9 @@ import time
 # import paho.mqtt.subscribe as subscribe
 
 
+Connected = False
+
+
 def on_connect(client, userdata, flags, rc):
 
     if rc == 0:
@@ -19,15 +22,22 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, message):
-    print("Message received: " + message.payload.decode())
+    message = message.payload.decode()
 
+    with open('States.json', 'r') as json_file:
+        states = json.load(json_file)
 
-Connected = False
+    states["set_temp"] = message
+
+    with open('States.json', 'w') as json_file:
+        json.dump(states, json_file)
+
+    print("Temp Set: " + message)
 
 
 def main():
-    # Read mqtt.config file
-    with open('Configs\mqtt.config') as json_file:
+    # Read mqtt_config.json file
+    with open('Configs\mqtt_config.json') as json_file:
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID
