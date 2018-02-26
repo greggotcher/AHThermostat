@@ -2,7 +2,6 @@ import time
 import os
 import json
 import paho.mqtt.client as mqtt
-# import paho.mqtt.subscribe as subscribe
 import Adafruit_DHT as dht
 import RPi.GPIO as GPIO
 
@@ -125,8 +124,6 @@ def main():
 
     # Assing MQTT Topics
     mqtt_current_temperature_topic = mqtt_config["current_temperature_topic"]
-    # mqtt_mode_state_topic = mqtt_config["mode_state_topic"]
-    # mqtt_temperature_state_topic = mqtt_config["temperature_state_topic"]
 
     client = mqtt.Client(mqtt_client_id)
     client.connect(mqtt_broker_address)
