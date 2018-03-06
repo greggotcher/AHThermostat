@@ -1,5 +1,6 @@
 {
     "current_temperature_topic": "kitchen/thermostat/current_temp",
+    "current_humidity_topic": "kitchen/thermostat/current_humidity",
     "mode_state_topic": "kitchen/thermostat/hvac_mode",
     "temperature_state_topic": "kitchen/thermostat/target_temp",
     "fan_state_topic": "kitchen/thermostat/fan_mode",
