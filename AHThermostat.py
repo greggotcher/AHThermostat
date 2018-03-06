@@ -106,7 +106,7 @@ def print_thermostat(fan_mode, use_fahrenheit, set_temp,
 def main():
     # Thermostat Setup
     # Read thermostat_config.json file
-    with open('Configs\thermostat_config.json', 'r') as json_file:
+    with open('Configs/thermostat_config.json', 'r') as json_file:
         thermostat_config = json.load(json_file)
 
     set_temp = thermostat_config["default_set_temp"]
@@ -115,7 +115,7 @@ def main():
 
     # MQTT Setup
     # Read mqtt_config.json file
-    with open('Configs\mqtt_config.json', 'r') as json_file:
+    with open('Configs/mqtt_config.json', 'r') as json_file:
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID

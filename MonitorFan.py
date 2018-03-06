@@ -36,7 +36,7 @@ def on_message(client, userdata, message):
 
 def main():
     # Read mqtt_config.json file
-    with open('Configs\mqtt_config.json') as json_file:
+    with open('Configs/mqtt_config.json') as json_file:
         mqtt_config = json.load(json_file)
 
     # Assign MQTT Sever and Client ID
