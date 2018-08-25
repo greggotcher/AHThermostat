@@ -31,7 +31,16 @@ def on_message(client, userdata, message):
     with open('States.json', 'w') as json_file:
         json.dump(states, json_file)
 
-    print("Temp Set: " + message)
+    print("Temperature Set: " + message)
+
+    # Read mqtt_config.json file
+    with open('Configs/mqtt_config.json') as json_file:
+        mqtt_config = json.load(json_file)
+
+    mqtt_temperature_state_topic = mqtt_config["temperature_state_topic"]
+
+    client.publish(mqtt_temperature_state_topic, message)
+    print("State Topic Set to " + message)
 
 
 def main():
@@ -41,10 +50,10 @@ def main():
 
     # Assign MQTT Sever and Client ID
     mqtt_broker_address = mqtt_config["mqtt_broker_address"]
-    mqtt_client_id = 'GetSetTempState'
+    mqtt_client_id = mqtt_config["mqtt_client_id"] + 'MonitorTemp'
 
-    # Assing MQTT Topics
-    mqtt_temperature_state_topic = mqtt_config["temperature_state_topic"]
+    # Assign MQTT Topics
+    mqtt_temperature_command_topic = mqtt_config["temperature_command_topic"]
 
     client = mqtt.Client(mqtt_client_id)
     client.connect(mqtt_broker_address)
@@ -54,7 +63,7 @@ def main():
 
     client.loop_start()
 
-    client.subscribe(mqtt_temperature_state_topic)
+    client.subscribe(mqtt_temperature_command_topic)
 
     try:
         while True:

@@ -1,8 +1,14 @@
 {
-    "current_temperature_topic": "kitchen/thermostat/current_temp",
-    "current_humidity_topic": "kitchen/thermostat/current_humidity",
-    "mode_state_topic": "kitchen/thermostat/hvac_mode",
-    "temperature_state_topic": "kitchen/thermostat/target_temp",
-    "fan_state_topic": "kitchen/thermostat/fan_mode",
-    "mqtt_broker_address": "192.168.1.200"
+    "current_temperature_topic": "thermostat/office/current_temp/get",
+    "current_humidity_topic": "thermostat/office/current_humidity/get",
+    "mode_state_topic": "thermostat/office/hvac_mode/get",
+    "mode_command_topic": "thermostat/office/hvac_mode/set",
+    "temperature_state_topic": "thermostat/office/target_temp/get",
+    "temperature_command_topic": "thermostat/office/target_temp/set",
+    "fan_mode_state_topic": "thermostat/office/fan_mode/get",
+    "fan_mode_command_topic": "thermostat/office/fan_mode/set",
+    "away_mode_state_topic": "thermostat/office/hvac_away/get",
+    "away_mode_command_topic": "thermostat/office/hvac_away/set",
+    "mqtt_broker_address": "10.250.2.22",
+    "mqtt_client_id": "Office"
 }
